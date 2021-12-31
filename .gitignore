@@ -1,0 +1,13 @@
+public/*
+fixture/*
+!fixture/.gitkeep
+deno
+frontend
+kataribe.toml
+logs
+nodejs
+perl
+php
+python
+ruby
+rust
