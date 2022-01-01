@@ -282,7 +282,7 @@ func main() {
 	e.GET("/api/recommended_estate/:id", searchRecommendedEstateWithChair)
 
 	// Unix Domain Socket
-	socketFile := "/run/app.sock"
+	socketFile := "/tmp/app.sock"
 	l, err := net.Listen("unix", socketFile)
 	if err != nil {
 		e.Logger.Fatal(err)
