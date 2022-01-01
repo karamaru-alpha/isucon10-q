@@ -1,6 +1,6 @@
 module github.com/isucon/isucon10-qualify/isuumo
 
-go 1.14
+go 1.17
 
 require (
 	github.com/bytedance/sonic v1.0.0
