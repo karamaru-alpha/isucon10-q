@@ -89,3 +89,10 @@ log:
 .PHONY: bench
 bench:
 	(cd ../bench && ./bench -target-url http://localhost:80)
+
+
+.PHONY: install-gh
+install-gh:
+	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+	sudo apt update
+	sudo apt install gh
