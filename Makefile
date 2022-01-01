@@ -85,3 +85,7 @@ kataru:
 .PHONY: log
 log:
 	sudo cat $(GO_LOG)
+
+.PHONY: bench
+bench:
+	(cd ../bench && ./bench -target-url http://localhost:80)
