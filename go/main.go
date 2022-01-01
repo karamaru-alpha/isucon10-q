@@ -295,6 +295,7 @@ func main() {
 }
 
 func initialize(c echo.Context) error {
+	goLog.Println("initialize!")
 	sqlDir := filepath.Join("..", "mysql", "db")
 	paths := []string{
 		filepath.Join(sqlDir, "0_Schema.sql"),
