@@ -19,7 +19,10 @@ GO_LOG:=/var/log/go.log
 
 .PHONY: setup
 setup:
-	sudo apt install -y percona-toolkit git unzip
+	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+	sudo apt update
+	sudo apt install -y percona-toolkit git unzip gh
 	git init
 	git config --global user.name karamaru-alpha
 	git config --global user.email mrnk3078@gmail.com
@@ -31,6 +34,9 @@ setup:
 	sudo rm kataribe.zip
 	kataribe -generate
 	sudo rm README.md 2> /dev/null
+	sudo rm LICENSE 2> /dev/null
+	gh auth login
+# GitHub.com -> SSH -> /home/isucon/.ssh/id_rsa.pub -> Paste an authentication token -> https://github.com/settings/tokens
 
 .PHONY: before
 before:
@@ -89,11 +95,3 @@ log:
 .PHONY: bench
 bench:
 	(cd ../bench && ./bench -target-url http://localhost:80)
-
-
-.PHONY: install-gh
-install-gh:
-	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-	sudo apt update
-	sudo apt install gh
