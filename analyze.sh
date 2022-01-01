@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# ./analyze 改善しました 100
+# ./analyze.sh 改善しました 100
 
 sudo gh issue comment 1 --body "
 ## $1 $2
