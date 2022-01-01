@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/csv"
 	"encoding/json"
@@ -16,10 +17,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bytedance/sonic/decoder"
+	"github.com/bytedance/sonic/encoder"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 )
 
@@ -248,6 +251,29 @@ func init() {
 	json.Unmarshal(jsonText, &estateSearchCondition)
 }
 
+type JSONSerializer struct{}
+
+func (j *JSONSerializer) Serialize(c echo.Context, i interface{}, indent string) error {
+	buf, err := encoder.Encode(i, 0)
+	if err != nil {
+		return err
+	}
+	_, err = c.Response().Write(buf)
+	return err
+}
+
+func (j *JSONSerializer) Deserialize(c echo.Context, i interface{}) error {
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(c.Request().Body)
+	err := decoder.NewDecoder(buf.String()).Decode(i)
+	if ute, ok := err.(*json.UnmarshalTypeError); ok {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Unmarshal type error: expected=%v, got=%v, field=%v, offset=%v", ute.Type, ute.Value, ute.Field, ute.Offset)).SetInternal(err)
+	} else if se, ok := err.(*json.SyntaxError); ok {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Syntax error: offset=%v, error=%v", se.Offset, se.Error())).SetInternal(err)
+	}
+	return err
+}
+
 func main() {
 	// TODO
 	goLog.SetFlags(goLog.Lshortfile)
@@ -261,6 +287,7 @@ func main() {
 
 	// Echo instance
 	e := echo.New()
+	e.JSONSerializer = &JSONSerializer{}
 	e.Debug = true
 	e.Logger.SetLevel(log.DEBUG)
 
