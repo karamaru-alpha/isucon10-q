@@ -2,6 +2,10 @@
 
 # ./analyze 改善しました 100
 
+
+KATARU=$(make kataru)
+SLOW=$(make slow)
+
 sudo gh issue comment 1 --body "
 ## $1 $2
 
@@ -9,7 +13,7 @@ sudo gh issue comment 1 --body "
 <summary>kataribe</summary>
 
 ```
-$(make kataru)
+$KATARU
 ```
 </details>
 
@@ -17,7 +21,7 @@ $(make kataru)
 <summary>slow-log</summary>
 
 ```
-$(make slow)
+$SLOW
 ```
 </details>
 
