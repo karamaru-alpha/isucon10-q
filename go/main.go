@@ -291,7 +291,13 @@ func main() {
 
 	// Unix Domain Socket
 	socketFile := "/tmp/app.sock"
+	os.Remove(socketFile)
 	l, err := net.Listen("unix", socketFile)
+	if err != nil {
+		goLog.Println(err)
+		e.Logger.Fatal(err)
+	}
+	err = os.Chmod(socketFile, 0777)
 	if err != nil {
 		goLog.Println(err)
 		e.Logger.Fatal(err)
