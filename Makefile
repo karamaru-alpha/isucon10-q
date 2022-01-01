@@ -86,7 +86,7 @@ sql:
 
 .PHONY: slow
 slow:
-	sudo pt-query-digest $(MYSQL_LOG) --limit=5
+	sudo pt-query-digest $(MYSQL_LOG) --limit=5 --report-format=query_report
 
 .PHONY: kataru
 kataru:
