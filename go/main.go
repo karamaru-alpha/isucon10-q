@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	goLog "log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -279,6 +280,19 @@ func main() {
 	e.POST("/api/estate/nazotte", searchEstateNazotte)
 	e.GET("/api/estate/search/condition", getEstateSearchCondition)
 	e.GET("/api/recommended_estate/:id", searchRecommendedEstateWithChair)
+
+	// Unix Domain Socket
+	socketFile := "/run/app.sock"
+	os.Remove(socketFile)
+	l, err := net.Listen("unix", socketFile)
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	err = os.Chmod(socketFile, 0777)
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	e.Listener = l
 
 	mySQLConnectionData = NewMySQLConnectionEnv()
 
