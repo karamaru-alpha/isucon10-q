@@ -5,7 +5,9 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	goLog "log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -239,6 +241,15 @@ func init() {
 }
 
 func main() {
+	// TODO
+	goLog.SetFlags(goLog.Lshortfile)
+	logfile, err := os.OpenFile("/var/log/go.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		panic("cannnot open test.log:" + err.Error())
+	}
+	defer logfile.Close()
+	goLog.SetOutput(io.MultiWriter(logfile, os.Stdout))
+
 	// Echo instance
 	e := echo.New()
 	e.Debug = true
@@ -271,7 +282,6 @@ func main() {
 
 	mySQLConnectionData = NewMySQLConnectionEnv()
 
-	var err error
 	db, err = mySQLConnectionData.ConnectDB()
 	if err != nil {
 		e.Logger.Fatalf("DB connection failed : %v", err)
