@@ -39,7 +39,7 @@ before:
 	git pull origin main
 	sudo cp my.cnf /etc/mysql/my.cnf
 	sudo cp nginx.conf /etc/nginx/nginx.conf
-	sudo cp $(APP) /etc/nginx/sites-enabled/$(APP).conf
+	sudo cp $(APP).conf /etc/nginx/sites-enabled/$(APP).conf
 # ビルド
 	(cd go && go mod tidy)
 	(cd go && go build -o $(APP))
