@@ -1,5 +1,5 @@
 SHELL=/bin/bash
-api-server/%: ## api-server/${lang}docker-compose up with mysql and api-server 
+api-server/%: ## api-server/${lang}docker-compose up with mysql and api-server
 	docker-compose -f docker-compose/$(shell basename $@).yaml down -v
 	docker-compose -f docker-compose/$(shell basename $@).yaml up --build mysql api-server
 
@@ -7,12 +7,12 @@ isuumo/%: ## isuumo/${lang} docker-compose up with mysql and api-server frontend
 	docker-compose -f docker-compose/$(shell basename $@).yaml down -v
 	docker-compose -f docker-compose/$(shell basename $@).yaml up --build mysql api-server nginx frontend
 
-APP:=isucondition
+APP:=isuumo
 DB_HOST:=127.0.0.1
 DB_PORT:=3306
 DB_USER:=isucon
 DB_PASS:=isucon
-DB_NAME:=isucon
+DB_NAME:=isuumo
 MYSQL_LOG:=/var/log/mysql/slow-query.log
 NGINX_LOG:=/var/log/nginx/access.log
 GO_LOG:=/var/log/go.log
@@ -39,7 +39,7 @@ before:
 	git pull origin main
 	sudo cp my.cnf /etc/mysql/my.cnf
 	sudo cp nginx.conf /etc/nginx/nginx.conf
-# sudo cp isucondition.conf /etc/nginx/sites-enabled/isucondition.conf
+	sudo cp $(APP) /etc/nginx/sites-enabled/$(APP).conf
 # ビルド
 	(cd go && go mod tidy)
 	(cd go && go build -o $(APP))
