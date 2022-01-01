@@ -20,4 +20,6 @@ $(make kataru)
 $(make slow)
 \`\`\`
 </details>
+
+$(git rev-parse HEAD)
 "
