@@ -8,6 +8,8 @@ isuumo/%: ## isuumo/${lang} docker-compose up with mysql and api-server frontend
 	docker-compose -f docker-compose/$(shell basename $@).yaml up --build mysql api-server nginx frontend
 
 APP:=isuumo
+APP_PATH:=/home/isucon/isuumo/webapp
+GO_PATH:=/home/isucon/local/go/bin/go
 DB_HOST:=127.0.0.1
 DB_PORT:=3306
 DB_USER:=isucon
@@ -16,6 +18,11 @@ DB_NAME:=isuumo
 MYSQL_LOG:=/var/log/mysql/slow-query.log
 NGINX_LOG:=/var/log/nginx/access.log
 GO_LOG:=/var/log/go.log
+
+MAIN_SERVER:=isu1
+DB_SERVER:=isu1
+# APP_SERVER:=isu3
+
 
 .PHONY: setup
 setup:
@@ -44,41 +51,63 @@ setup:
 
 .PHONY: before
 before:
-# 同期
-	git stash
-	git pull origin main
-	sudo cp my.cnf /etc/mysql/my.cnf
-	sudo cp nginx.conf /etc/nginx/nginx.conf
-	sudo cp $(APP).conf /etc/nginx/sites-enabled/$(APP).conf
-# ビルド
-	(cd go && go mod tidy)
-	(cd go && go build -o $(APP))
-# 掃除
-	sudo rm $(MYSQL_LOG) 2> /dev/null
-	sudo touch $(MYSQL_LOG)
-	sudo chown -R mysql $(MYSQL_LOG)
-	sudo rm $(NGINX_LOG) 2> /dev/null
-	sudo touch $(NGINX_LOG)
-	sudo rm $(GO_LOG) 2> /dev/null
-	sudo touch $(GO_LOG)
-	sudo chmod 0666 $(GO_LOG)
-	sudo cp /dev/null /var/log/nginx/error.log
-# 起動
-	sudo systemctl restart nginx
-	sudo systemctl restart mysql
-	sudo systemctl restart $(APP).go.service
+	ssh $(MAIN_SERVER) "\
+		cd $(APP_PATH);\
+		git stash;\
+		git pull origin main;\
+		sudo cp my.cnf /etc/mysql/my.cnf;\
+		sudo cp nginx.conf /etc/nginx/nginx.conf;\
+		sudo cp $(APP).conf /etc/nginx/sites-enabled/$(APP).conf;\
+		(cd go && $(GO_PATH) mod tidy);\
+		(cd go && $(GO_PATH) build -o $(APP));\
+		sudo rm $(MYSQL_LOG) 2> /dev/null;\
+		sudo touch $(MYSQL_LOG);\
+		sudo chown -R mysql $(MYSQL_LOG);\
+		sudo rm $(NGINX_LOG) 2> /dev/null;\
+		sudo touch $(NGINX_LOG);\
+		sudo rm $(GO_LOG) 2> /dev/null;\
+		sudo touch $(GO_LOG);\
+		sudo chmod 0666 $(GO_LOG);\
+		sudo cp /dev/null /var/log/nginx/error.log;\
+		sudo systemctl restart nginx;\
+		sudo systemctl restart mysql;\
+		sudo systemctl restart $(APP).go.service;\
+	"
 
-.PHONY: before-db
-before-db:
-	git stash
-	git pull origin main
-	sudo cp my.cnf /etc/mysql/my.cnf
-	sudo rm $(MYSQL_LOG) 2> /dev/null
-	sudo touch $(MYSQL_LOG)
-	sudo chown -R mysql $(MYSQL_LOG)
-	sudo systemctl restart mysql
-	sudo systemctl stop nginx
-	sudo systemctl stop $(APP).go.service
+# DB 切り分け後に有効化
+# .PHONY: before
+# before:
+# 	ssh $(MAIN_SERVER) "\
+# 		cd $(APP_PATH);\
+# 		git stash;\
+# 		git pull origin main;\
+# 		sudo cp nginx.conf /etc/nginx/nginx.conf;\
+# 		sudo cp $(APP).conf /etc/nginx/sites-enabled/$(APP).conf;\
+# 		(cd go && $(GO_PATH) mod tidy);\
+# 		(cd go && $(GO_PATH) build -o $(APP));\
+# 		sudo rm $(MYSQL_LOG) 2> /dev/null;\
+# 		sudo rm $(NGINX_LOG) 2> /dev/null;\
+# 		sudo touch $(NGINX_LOG);\
+# 		sudo rm $(GO_LOG) 2> /dev/null;\
+# 		sudo touch $(GO_LOG);\
+# 		sudo chmod 0666 $(GO_LOG);\
+# 		sudo cp /dev/null /var/log/nginx/error.log;\
+# 		sudo systemctl restart nginx;\
+# 		sudo systemctl stop mysql;\
+# 		sudo systemctl restart $(APP).go.service;\
+# 	"
+# 	ssh $(DB_SERVER) "\
+# 		cd $(APP_PATH);\
+# 		git stash;\
+# 		git pull origin main;\
+# 		sudo cp my.cnf /etc/mysql/my.cnf;\
+# 		sudo rm $(MYSQL_LOG) 2> /dev/null;\
+# 		sudo touch $(MYSQL_LOG);\
+# 		sudo chown -R mysql $(MYSQL_LOG);\
+# 		sudo systemctl stop nginx;\
+# 		sudo systemctl restart mysql;\
+# 		sudo systemctl stop $(APP).go.service;\
+# 	"
 
 .PHONY: sql
 sql:
@@ -86,16 +115,16 @@ sql:
 
 .PHONY: slow
 slow:
-	sudo pt-query-digest $(MYSQL_LOG) --limit=5 --report-format=query_report
+	ssh $(DB_SERVER) "sudo pt-query-digest $(MYSQL_LOG) --limit=5 --report-format=query_report"
 
 .PHONY: kataru
 kataru:
-	sudo cat $(NGINX_LOG) | kataribe -f ./kataribe.toml
+	ssh $(MAIN_SERVER) "sudo cat $(NGINX_LOG) | kataribe -f $(APP_PATH)/kataribe.toml"
 
 .PHONY: log
 log:
-	sudo cat $(GO_LOG)
+	ssh $(MAIN_SERVER) "sudo cat $(GO_LOG)"
 
 .PHONY: bench
 bench:
-	(cd ../bench && ./bench -target-url http://localhost:80)
+	ssh $(MAIN_SERVER) "cd /home/isucon/isuumo/bench && ./bench -target-url http://localhost:80"
