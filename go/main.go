@@ -40,19 +40,20 @@ type InitializeResponse struct {
 }
 
 type Chair struct {
-	ID          int64  `db:"id" json:"id"`
-	Name        string `db:"name" json:"name"`
-	Description string `db:"description" json:"description"`
-	Thumbnail   string `db:"thumbnail" json:"thumbnail"`
-	Price       int64  `db:"price" json:"price"`
-	Height      int64  `db:"height" json:"height"`
-	Width       int64  `db:"width" json:"width"`
-	Depth       int64  `db:"depth" json:"depth"`
-	Color       string `db:"color" json:"color"`
-	Features    string `db:"features" json:"features"`
-	Kind        string `db:"kind" json:"kind"`
-	Popularity  int64  `db:"popularity" json:"-"`
-	Stock       int64  `db:"stock" json:"-"`
+	ID             int64  `db:"id" json:"id"`
+	Name           string `db:"name" json:"name"`
+	Description    string `db:"description" json:"description"`
+	Thumbnail      string `db:"thumbnail" json:"thumbnail"`
+	Price          int64  `db:"price" json:"price"`
+	Height         int64  `db:"height" json:"height"`
+	Width          int64  `db:"width" json:"width"`
+	Depth          int64  `db:"depth" json:"depth"`
+	Color          string `db:"color" json:"color"`
+	Features       string `db:"features" json:"features"`
+	Kind           string `db:"kind" json:"kind"`
+	Popularity     int64  `db:"popularity" json:"-"`
+	PopularityDesc int64  `db:"popularity_desc" json:"-"`
+	Stock          int64  `db:"stock" json:"-"`
 }
 
 type ChairSearchResponse struct {
@@ -464,7 +465,7 @@ func postChair(c echo.Context) error {
 			c.Logger().Errorf("failed to read record: %v", err)
 			return c.NoContent(http.StatusBadRequest)
 		}
-		_, err := tx.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
+		_, err := tx.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, popularity_desc, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,null,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
 		if err != nil {
 			goLog.Println(err)
 			c.Logger().Errorf("failed to insert chair: %v", err)
@@ -595,7 +596,7 @@ func searchChairs(c echo.Context) error {
 	searchQuery := "SELECT * FROM chair WHERE "
 	countQuery := "SELECT COUNT(*) FROM chair WHERE "
 	searchCondition := strings.Join(conditions, " AND ")
-	limitOffset := " ORDER BY popularity DESC, id ASC LIMIT ? OFFSET ?"
+	limitOffset := " ORDER BY popularity_desc, id ASC LIMIT ? OFFSET ?"
 
 	var res ChairSearchResponse
 	err = db.Get(&res.Count, countQuery+searchCondition, params...)
