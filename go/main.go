@@ -304,6 +304,7 @@ func main() {
 	e.POST("/initialize", initialize)
 
 	// Chair Handler
+	// * path
 	e.GET("/api/chair/:id", getChairDetail)
 	e.POST("/api/chair", postChair)
 	e.GET("/api/chair/search", searchChairs)
@@ -620,6 +621,7 @@ func searchChairs(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// * score
 func buyChair(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -1023,6 +1025,7 @@ func searchEstateNazotte(c echo.Context) error {
 	return c.JSON(http.StatusOK, re)
 }
 
+// * score
 func postEstateRequestDocument(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
