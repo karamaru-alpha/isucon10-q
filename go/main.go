@@ -304,7 +304,7 @@ func main() {
 	e.POST("/initialize", initialize)
 
 	// Chair Handler
-	// * path
+	// ! path
 	e.GET("/api/chair/:id", getChairDetail)
 	e.POST("/api/chair", postChair)
 	e.GET("/api/chair/search", searchChairs)
@@ -1003,10 +1003,10 @@ func searchEstateNazotte(c echo.Context) error {
 		query := fmt.Sprintf(`SELECT * FROM estate WHERE id = ? AND ST_Contains(ST_PolygonFromText(%s), ST_GeomFromText(%s))`, coordinates.coordinatesToText(), point)
 		err = db.Get(&validatedEstate, query, estate.ID)
 		if err != nil {
-			goLog.Println(err)
 			if err == sql.ErrNoRows {
 				continue
 			} else {
+				goLog.Println(err)
 				c.Echo().Logger.Errorf("db access is failed on executing validate if estate is in polygon : %v", err)
 				return c.NoContent(http.StatusInternalServerError)
 			}
