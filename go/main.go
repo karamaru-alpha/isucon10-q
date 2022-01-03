@@ -24,7 +24,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
 )
 
 const Limit = 20
@@ -295,11 +294,8 @@ func main() {
 	// Echo instance
 	e := echo.New()
 	e.JSONSerializer = &JSONSerializer{}
-	e.Debug = true
-	e.Logger.SetLevel(log.DEBUG)
 
 	// Middleware
-	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	// Initialize
