@@ -304,7 +304,7 @@ func main() {
 	e.POST("/initialize", initialize)
 
 	// Chair Handler
-	// ! path
+	// * path
 	e.GET("/api/chair/:id", getChairDetail)
 	e.POST("/api/chair", postChair)
 	e.GET("/api/chair/search", searchChairs)
