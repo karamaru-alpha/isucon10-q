@@ -19,7 +19,7 @@ CREATE TABLE isuumo.estate (
     door_width INTEGER NOT NULL,
     features VARCHAR(64) NOT NULL,
     popularity INTEGER NOT NULL,
-    popularity_desc INTEGER AS (-popularity),
+    popularity_desc INTEGER AS (-popularity) STORED,
     INDEX rent_id_idx (`rent`, `id`),
     INDEX popularity_desc_id_idx (`popularity_desc`, `id`)
 );
@@ -37,7 +37,7 @@ CREATE TABLE isuumo.chair (
     features VARCHAR(64) NOT NULL,
     kind VARCHAR(64) NOT NULL,
     popularity INTEGER NOT NULL,
-    popularity_desc INTEGER AS (-popularity),
+    popularity_desc INTEGER AS (-popularity) STORED,
     stock INTEGER NOT NULL,
     INDEX price_id_idx (`price`, `id`),
     INDEX popularity_desc_id_idx (`popularity_desc`, `id`)
