@@ -1026,11 +1026,7 @@ func searchEstateNazotte(c echo.Context) error {
 
 	var re EstateSearchResponse
 	re.Estates = []Estate{}
-	if len(estatesInPolygon) > NazotteLimit {
-		re.Estates = estatesInPolygon[:NazotteLimit]
-	} else {
-		re.Estates = estatesInPolygon
-	}
+	re.Estates = estatesInPolygon
 	re.Count = int64(len(re.Estates))
 
 	return c.JSON(http.StatusOK, re)
