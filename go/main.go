@@ -1012,7 +1012,7 @@ func searchEstateNazotte(c echo.Context) error {
 	// 		estatesInPolygon = append(estatesInPolygon, validatedEstate)
 	// 	}
 	// }
-	query = fmt.Sprintf("SELECT * FROM estate WHERE ST_Contains(ST_PolygonFromText(%s), geom)", coordinates.coordinatesToText())
+	query = fmt.Sprintf("SELECT * FROM estate WHERE ST_Contains(ST_PolygonFromText(%s), geom) ORDER BY popularity_desc, id ASC", coordinates.coordinatesToText())
 	err = db.Select(&estatesInPolygon, query)
 	if err != nil {
 		if err == sql.ErrNoRows {
