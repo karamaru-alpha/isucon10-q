@@ -1012,8 +1012,7 @@ func searchEstateNazotte(c echo.Context) error {
 	// 		estatesInPolygon = append(estatesInPolygon, validatedEstate)
 	// 	}
 	// }
-	query := fmt.Sprintf("SELECT * FROM estate WHERE ST_Contains(ST_PolygonFromText(%s), geom) ORDER BY popularity_desc, id ASC", coordinates.coordinatesToText())
-	err = db.Select(&estatesInPolygon, query)
+	err = db.Select(&estatesInPolygon, `SELECT * FROM estate WHERE ST_Contains(ST_PolygonFromText(?), geom) ORDER BY popularity_desc, id ASC LIMIT ?`, coordinates.coordinatesToText(), NazotteLimit)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusOK, EstateSearchResponse{Count: 0})
@@ -1025,14 +1024,8 @@ func searchEstateNazotte(c echo.Context) error {
 	}
 
 	var re EstateSearchResponse
-	re.Estates = []Estate{}
-	if len(estatesInPolygon) > NazotteLimit {
-		re.Estates = estatesInPolygon[:NazotteLimit]
-	} else {
-		re.Estates = estatesInPolygon
-	}
+	re.Estates = estatesInPolygon
 	re.Count = int64(len(re.Estates))
-
 	return c.JSON(http.StatusOK, re)
 }
 
