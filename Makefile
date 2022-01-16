@@ -128,3 +128,7 @@ log:
 .PHONY: bench
 bench:
 	ssh $(MAIN_SERVER) "cd /home/isucon/isuumo/bench && ./bench -target-url http://localhost:80"
+
+.PHONY: fetch
+fetch:
+	ssh $(MAIN_SERVER) "cd $(APP_PATH) && git fetch origin main && git reset --hard origin/main"
