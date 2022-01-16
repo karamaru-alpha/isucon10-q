@@ -20,8 +20,8 @@ CREATE TABLE isuumo.estate (
     features VARCHAR(64) NOT NULL,
     popularity INTEGER NOT NULL,
     popularity_desc INTEGER AS (-popularity) INVISIBLE,
-    INDEX rent_id_idx (`rent`, `id`),
-    INDEX popularity_desc_id_idx (`popularity_desc`, `id`)
+    INDEX (`rent`, `id`),
+    INDEX (`popularity_desc`, `id`)
 );
 
 
@@ -40,6 +40,6 @@ CREATE TABLE isuumo.chair (
     popularity INTEGER NOT NULL,
     popularity_desc INTEGER AS (-popularity) INVISIBLE,
     stock INTEGER NOT NULL,
-    INDEX price_id_idx (`price`, `id`),
-    INDEX popularity_desc_id_idx (`popularity_desc`, `id`)
+    INDEX (`price`, `id`),
+    INDEX (`popularity_desc`, `id`)
 );
