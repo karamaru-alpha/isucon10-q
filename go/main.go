@@ -1015,11 +1015,13 @@ func searchEstateNazotte(c echo.Context) error {
 	query = fmt.Sprintf("SELECT * FROM estate WHERE ST_Contains(ST_PolygonFromText(%s), geom)", coordinates.coordinatesToText())
 	err = db.Select(&estatesInPolygon, query)
 	if err != nil {
-		if err != sql.ErrNoRows {
-			goLog.Println(err)
-			c.Echo().Logger.Errorf("db access is failed on executing validate if estate is in polygon : %v", err)
-			return c.NoContent(http.StatusInternalServerError)
+		if err == sql.ErrNoRows {
+			return c.JSON(http.StatusOK, EstateSearchResponse{Count: 0})
 		}
+		goLog.Println(err)
+		c.Echo().Logger.Errorf("db access is failed on executing validate if estate is in polygon : %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+
 	}
 
 	var re EstateSearchResponse
