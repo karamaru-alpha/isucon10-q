@@ -16,7 +16,9 @@ DB_USER:=isucon
 DB_PASS:=isucon
 DB_NAME:=isuumo
 MYSQL_LOG:=/var/log/mysql/slow-query.log
+MYSQL_ERR:=/var/log/mysql/error.log
 NGINX_LOG:=/var/log/nginx/access.log
+NGINX_ERR:=/var/log/nginx/error.log
 GO_LOG:=/var/log/go.log
 
 MAIN_SERVER:=isu1
@@ -60,15 +62,11 @@ before:
 		sudo cp $(APP).conf /etc/nginx/sites-enabled/$(APP).conf;\
 		(cd go && $(GO_PATH) mod tidy);\
 		(cd go && $(GO_PATH) build -o $(APP));\
-		sudo rm $(MYSQL_LOG) 2> /dev/null;\
-		sudo touch $(MYSQL_LOG);\
-		sudo chown -R mysql $(MYSQL_LOG);\
-		sudo rm $(NGINX_LOG) 2> /dev/null;\
-		sudo touch $(NGINX_LOG);\
-		sudo rm $(GO_LOG) 2> /dev/null;\
-		sudo touch $(GO_LOG);\
-		sudo chmod 0666 $(GO_LOG);\
-		sudo cp /dev/null /var/log/nginx/error.log;\
+		sudo cp /dev/null $(MYSQL_LOG);\
+		sudo cp /dev/null $(MYSQL_ERR);\
+		sudo cp /dev/null $(NGINX_LOG);\
+		sudo cp /dev/null $(NGINX_ERR);\
+		sudo cp /dev/null $(GO_LOG);\
 		sudo systemctl restart nginx;\
 		sudo systemctl restart mysql;\
 		sudo systemctl restart $(APP).go.service;\
