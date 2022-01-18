@@ -380,7 +380,13 @@ func main() {
 		e.Logger.Fatalf("DB connection failed : %v", err)
 	}
 	defer db.Close()
-	db.SetMaxOpenConns(10)
+	const SQL_CONN_COUNT = 20
+	// 最大接続数
+	db.SetMaxOpenConns(SQL_CONN_COUNT)
+	// プールできるコネクションの数
+	db.SetMaxIdleConns(SQL_CONN_COUNT)
+	// 接続が確立されてからコネクションを保持できる最大時間
+	db.SetConnMaxLifetime(SQL_CONN_COUNT * time.Second)
 	for {
 		err := db.Ping()
 		if err == nil {
