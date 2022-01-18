@@ -689,39 +689,43 @@ func buyChair(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	tx, err := db.Beginx()
-	if err != nil {
-		goLog.Println(err)
-		c.Echo().Logger.Errorf("failed to create transaction : %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-	defer tx.Rollback()
+	// tx, err := db.Beginx()
+	// if err != nil {
+	// 	goLog.Println(err)
+	// 	c.Echo().Logger.Errorf("failed to create transaction : %v", err)
+	// 	return c.NoContent(http.StatusInternalServerError)
+	// }
+	// defer tx.Rollback()
 
-	var chair Chair
-	err = tx.QueryRowx("SELECT * FROM chair WHERE id = ? AND stock > 0 FOR UPDATE", id).StructScan(&chair)
+	// var chair Chair
+	// err = tx.QueryRowx("SELECT * FROM chair WHERE id = ? AND stock > 0 FOR UPDATE", id).StructScan(&chair)
+	// if err != nil {
+	// 	goLog.Println(err)
+	// 	if err == sql.ErrNoRows {
+	// 		c.Echo().Logger.Infof("buyChair chair id \"%v\" not found", id)
+	// 		return c.NoContent(http.StatusNotFound)
+	// 	}
+	// 	c.Echo().Logger.Errorf("DB Execution Error: on getting a chair by id : %v", err)
+	// 	return c.NoContent(http.StatusInternalServerError)
+	// }
+
+	_, err = db.Exec("UPDATE chair SET stock = stock - 1 WHERE id = ? AND stock > 0", id)
 	if err != nil {
-		goLog.Println(err)
 		if err == sql.ErrNoRows {
 			c.Echo().Logger.Infof("buyChair chair id \"%v\" not found", id)
 			return c.NoContent(http.StatusNotFound)
 		}
-		c.Echo().Logger.Errorf("DB Execution Error: on getting a chair by id : %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-
-	_, err = tx.Exec("UPDATE chair SET stock = stock - 1 WHERE id = ?", id)
-	if err != nil {
 		goLog.Println(err)
 		c.Echo().Logger.Errorf("chair stock update failed : %v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		goLog.Println(err)
-		c.Echo().Logger.Errorf("transaction commit error : %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
+	// err = tx.Commit()
+	// if err != nil {
+	// 	goLog.Println(err)
+	// 	c.Echo().Logger.Errorf("transaction commit error : %v", err)
+	// 	return c.NoContent(http.StatusInternalServerError)
+	// }
 
 	return c.NoContent(http.StatusOK)
 }
