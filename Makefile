@@ -42,10 +42,10 @@ setup:
 	sudo chmod +x /usr/local/bin/kataribe
 	sudo rm kataribe.zip
 	kataribe -generate
-	sudo sed -i -e "s/show_stddev[ \f\n\r\t]*=[ \f\n\r\t]*true/show_stddev = false/" kataribe.toml
+	sudo sed -i -e "s/slow_count[ \f\n\r\t]*=.*/slow_count = 10/" kataribe.toml
+	sudo sed -i -e "s/show_stddev[ \f\n\r\t]*=.*/show_stddev = false/" kataribe.toml
 	sudo sed -i -e "s/show_status_code[ \f\n\r\t]*=.*/show_status_code = false/" kataribe.toml
 	sudo sed -i -e "s/show_bytes[ \f\n\r\t]*=.*/show_bytes = false/" kataribe.toml
-	sudo sed -i -e "s/slow_count[ \f\n\r\t]*=.*/slow_count = 10/" kataribe.toml
 	sudo sed -i -e "s/percentiles[ \f\n\r\t]*=.*/percentiles = []/" kataribe.toml
 	sudo rm README.md 2> /dev/null
 	sudo rm LICENSE 2> /dev/null
