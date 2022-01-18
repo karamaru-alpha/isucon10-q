@@ -435,14 +435,9 @@ func postChair(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	tx, err := db.Begin()
-	if err != nil {
-		goLog.Println(err)
-		c.Logger().Errorf("failed to begin tx: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-	defer tx.Rollback()
-	for _, row := range records {
+	args := make([]interface{}, 0, len(records)*3)
+	placeHolders := &strings.Builder{}
+	for i, row := range records {
 		rm := RecordMapper{Record: row}
 		id := rm.NextInt()
 		name := rm.NextString()
@@ -461,17 +456,46 @@ func postChair(c echo.Context) error {
 			c.Logger().Errorf("failed to read record: %v", err)
 			return c.NoContent(http.StatusBadRequest)
 		}
-		_, err := tx.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, popularity_desc, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,null,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
-		if err != nil {
-			goLog.Println(err)
-			c.Logger().Errorf("failed to insert chair: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
+		args = append(args, id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
+		if i == 0 {
+			placeHolders.WriteString(" (?,?,?,?,?,?,?,?,?,?,?,?,null,?)")
+		} else {
+			placeHolders.WriteString(",(?,?,?,?,?,?,?,?,?,?,?,?,null,?)")
 		}
 	}
-	if err := tx.Commit(); err != nil {
-		c.Logger().Errorf("failed to commit tx: %v", err)
+	_, err = db.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, popularity_desc, stock) VALUES"+placeHolders.String(), args...)
+	if err != nil {
+		goLog.Println(err)
+		c.Logger().Errorf("failed to insert chair: %v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
+	// for _, row := range records {
+	// 	rm := RecordMapper{Record: row}
+	// 	id := rm.NextInt()
+	// 	name := rm.NextString()
+	// 	description := rm.NextString()
+	// 	thumbnail := rm.NextString()
+	// 	price := rm.NextInt()
+	// 	height := rm.NextInt()
+	// 	width := rm.NextInt()
+	// 	depth := rm.NextInt()
+	// 	color := rm.NextString()
+	// 	features := rm.NextString()
+	// 	kind := rm.NextString()
+	// 	popularity := rm.NextInt()
+	// 	stock := rm.NextInt()
+	// 	if err := rm.Err(); err != nil {
+	// 		c.Logger().Errorf("failed to read record: %v", err)
+	// 		return c.NoContent(http.StatusBadRequest)
+	// 	}
+	// 	_, err := db.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, popularity_desc, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,null,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
+	// 	if err != nil {
+	// 		goLog.Println(err)
+	// 		c.Logger().Errorf("failed to insert chair: %v", err)
+	// 		return c.NoContent(http.StatusInternalServerError)
+	// 	}
+	// }
+
 	return c.NoContent(http.StatusCreated)
 }
 
