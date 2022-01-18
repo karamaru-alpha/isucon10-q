@@ -24,7 +24,7 @@ CREATE TABLE isuumo.estate (
     INDEX (`rent`, `door_width`),
     INDEX (`rent`, `door_height`),
     INDEX (`popularity_desc`, `id`)
-) ENGINE = MYISAM;
+);
 
 
 CREATE TABLE isuumo.chair (
