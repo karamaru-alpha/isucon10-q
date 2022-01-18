@@ -298,6 +298,25 @@ func (o *omLowPriceChairT) Set(v []Chair) {
 	o.M.Unlock()
 }
 
+type omLowPriceEstateT struct {
+	M sync.RWMutex
+	V []Estate
+}
+
+var omLowPriceEstate omLowPriceEstateT
+
+func (o *omLowPriceEstateT) Get() []Estate {
+	o.M.RLock()
+	defer o.M.RUnlock()
+	return o.V
+}
+
+func (o *omLowPriceEstateT) Set(v []Estate) {
+	o.M.Lock()
+	o.V = v
+	o.M.Unlock()
+}
+
 func main() {
 	// TODO
 	goLog.SetFlags(goLog.Lshortfile)
@@ -405,6 +424,10 @@ func initialize(c echo.Context) error {
 	var chairs []Chair
 	db.Select(&chairs, "SELECT * FROM chair WHERE stock > 0 ORDER BY price ASC, id ASC LIMIT ?", Limit)
 	omLowPriceChair.Set(chairs)
+
+	var estates []Estate
+	db.Select(&estates, "SELECT * FROM estate ORDER BY rent ASC, id ASC LIMIT ?", Limit)
+	omLowPriceEstate.Set(estates)
 
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
@@ -818,6 +841,10 @@ func postEstate(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
+	var estates []Estate
+	db.Select(&estates, "SELECT * FROM estate ORDER BY rent ASC, id ASC LIMIT ?", Limit)
+	omLowPriceEstate.Set(estates)
+
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -936,19 +963,19 @@ func searchEstates(c echo.Context) error {
 }
 
 func getLowPricedEstate(c echo.Context) error {
-	estates := make([]Estate, 0, Limit)
-	query := `SELECT * FROM estate ORDER BY rent ASC, id ASC LIMIT ?`
-	err := db.Select(&estates, query, Limit)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.Logger().Error("getLowPricedEstate not found")
-			return c.JSON(http.StatusOK, EstateListResponse{[]Estate{}})
-		}
-		goLog.Println(err)
-		c.Logger().Errorf("getLowPricedEstate DB execution error : %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-
+	// estates := make([]Estate, 0, Limit)
+	// query := `SELECT * FROM estate ORDER BY rent ASC, id ASC LIMIT ?`
+	// err := db.Select(&estates, query, Limit)
+	// if err != nil {
+	// 	if err == sql.ErrNoRows {
+	// 		c.Logger().Error("getLowPricedEstate not found")
+	// 		return c.JSON(http.StatusOK, EstateListResponse{[]Estate{}})
+	// 	}
+	// 	goLog.Println(err)
+	// 	c.Logger().Errorf("getLowPricedEstate DB execution error : %v", err)
+	// 	return c.NoContent(http.StatusInternalServerError)
+	// }
+	estates := omLowPriceEstate.Get()
 	return c.JSON(http.StatusOK, EstateListResponse{Estates: estates})
 }
 
