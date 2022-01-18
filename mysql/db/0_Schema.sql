@@ -21,6 +21,7 @@ CREATE TABLE isuumo.estate (
     popularity INTEGER NOT NULL,
     popularity_desc INTEGER AS (-popularity) INVISIBLE,
     INDEX (`rent`, `id`),
+    INDEX (`rent`, `door_width`),
     INDEX (`popularity_desc`, `id`)
 );
 
