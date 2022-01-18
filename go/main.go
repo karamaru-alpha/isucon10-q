@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bytedance/sonic/decoder"
@@ -278,6 +279,25 @@ func (j *JSONSerializer) Deserialize(c echo.Context, i interface{}) error {
 	return err
 }
 
+type omLowPriceChairT struct {
+	M sync.RWMutex
+	V []Chair
+}
+
+var omLowPriceChair omLowPriceChairT
+
+func (o *omLowPriceChairT) Get() []Chair {
+	o.M.RLock()
+	defer o.M.RUnlock()
+	return o.V
+}
+
+func (o *omLowPriceChairT) Set(v []Chair) {
+	o.M.Lock()
+	o.V = v
+	o.M.Unlock()
+}
+
 func main() {
 	// TODO
 	goLog.SetFlags(goLog.Lshortfile)
@@ -382,6 +402,10 @@ func initialize(c echo.Context) error {
 		}
 	}
 
+	var chairs []Chair
+	db.Select(&chairs, "SELECT * FROM chair WHERE stock > 0 ORDER BY price ASC, id ASC LIMIT ?", Limit)
+	omLowPriceChair.Set(chairs)
+
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
 	})
@@ -469,32 +493,10 @@ func postChair(c echo.Context) error {
 		c.Logger().Errorf("failed to insert chair: %v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
-	// for _, row := range records {
-	// 	rm := RecordMapper{Record: row}
-	// 	id := rm.NextInt()
-	// 	name := rm.NextString()
-	// 	description := rm.NextString()
-	// 	thumbnail := rm.NextString()
-	// 	price := rm.NextInt()
-	// 	height := rm.NextInt()
-	// 	width := rm.NextInt()
-	// 	depth := rm.NextInt()
-	// 	color := rm.NextString()
-	// 	features := rm.NextString()
-	// 	kind := rm.NextString()
-	// 	popularity := rm.NextInt()
-	// 	stock := rm.NextInt()
-	// 	if err := rm.Err(); err != nil {
-	// 		c.Logger().Errorf("failed to read record: %v", err)
-	// 		return c.NoContent(http.StatusBadRequest)
-	// 	}
-	// 	_, err := db.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, popularity_desc, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,null,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
-	// 	if err != nil {
-	// 		goLog.Println(err)
-	// 		c.Logger().Errorf("failed to insert chair: %v", err)
-	// 		return c.NoContent(http.StatusInternalServerError)
-	// 	}
-	// }
+
+	var chairs []Chair
+	db.Select(&chairs, "SELECT * FROM chair WHERE stock > 0 ORDER BY price ASC, id ASC LIMIT ?", Limit)
+	omLowPriceChair.Set(chairs)
 
 	return c.NoContent(http.StatusCreated)
 }
@@ -706,19 +708,20 @@ func getChairSearchCondition(c echo.Context) error {
 }
 
 func getLowPricedChair(c echo.Context) error {
-	var chairs []Chair
-	query := `SELECT * FROM chair WHERE stock > 0 ORDER BY price ASC, id ASC LIMIT ?`
-	err := db.Select(&chairs, query, Limit)
-	if err != nil {
-		goLog.Println(err)
-		if err == sql.ErrNoRows {
-			c.Logger().Error("getLowPricedChair not found")
-			return c.JSON(http.StatusOK, ChairListResponse{[]Chair{}})
-		}
-		c.Logger().Errorf("getLowPricedChair DB execution error : %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
+	// var chairs []Chair
+	// query := `SELECT * FROM chair WHERE stock > 0 ORDER BY price ASC, id ASC LIMIT ?`
+	// err := db.Select(&chairs, query, Limit)
+	// if err != nil {
+	// 	goLog.Println(err)
+	// 	if err == sql.ErrNoRows {
+	// 		c.Logger().Error("getLowPricedChair not found")
+	// 		return c.JSON(http.StatusOK, ChairListResponse{[]Chair{}})
+	// 	}
+	// 	c.Logger().Errorf("getLowPricedChair DB execution error : %v", err)
+	// 	return c.NoContent(http.StatusInternalServerError)
+	// }
 
+	chairs := omLowPriceChair.Get()
 	return c.JSON(http.StatusOK, ChairListResponse{Chairs: chairs})
 }
 
