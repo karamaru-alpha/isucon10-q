@@ -380,7 +380,7 @@ func main() {
 		e.Logger.Fatalf("DB connection failed : %v", err)
 	}
 	defer db.Close()
-	const SQL_CONN_COUNT = 40
+	const SQL_CONN_COUNT = 30
 	// 最大接続数
 	db.SetMaxOpenConns(SQL_CONN_COUNT)
 	// プールできるコネクションの数
