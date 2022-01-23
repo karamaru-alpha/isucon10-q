@@ -488,7 +488,7 @@ func postChair(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	args := make([]interface{}, 0, len(records)*3)
+	args := make([]interface{}, 0, len(records)*13)
 	placeHolders := &strings.Builder{}
 	for i, row := range records {
 		rm := RecordMapper{Record: row}
