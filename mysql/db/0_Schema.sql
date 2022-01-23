@@ -42,5 +42,7 @@ CREATE TABLE isuumo.chair (
     popularity_desc INTEGER AS (-popularity) INVISIBLE,
     stock INTEGER NOT NULL,
     INDEX (`price`, `stock`),
+    INDEX (`height`, `stock`),
+    INDEX (`kind`, `stock`),
     INDEX (`popularity_desc`)
 );
