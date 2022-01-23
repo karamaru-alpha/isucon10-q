@@ -114,7 +114,7 @@ sql:
 
 .PHONY: slow
 slow:
-	ssh $(DB_SERVER) "sudo pt-query-digest $(MYSQL_LOG) --limit=5 --report-format=query_report"
+	ssh $(DB_SERVER) 'sudo ./slow.sh $(MYSQL_LOG)'
 
 .PHONY: kataru
 kataru:

@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# ./analyze.sh 改善しました 100
-
 gh issue comment 1 --body "
 ## $1 $2
 
