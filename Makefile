@@ -114,7 +114,7 @@ sql:
 
 .PHONY: slow
 slow:
-	ssh $(DB_SERVER) 'sudo $(APP_PATH)/slow.sh $(MYSQL_LOG)'
+	ssh $(DB_SERVER) "sudo $(APP_PATH)/slow.sh $(MYSQL_LOG)"
 
 .PHONY: kataru
 kataru:
