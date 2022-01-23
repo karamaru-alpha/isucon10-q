@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS isuumo.estate;
 DROP TABLE IF EXISTS isuumo.chair;
 
 CREATE TABLE isuumo.estate (
-    id INTEGER NOT NULL PRIMARY KEY,
+    id SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     description VARCHAR(4096) NOT NULL,
     thumbnail VARCHAR(128) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE isuumo.estate (
 
 
 CREATE TABLE isuumo.chair (
-    id INTEGER NOT NULL PRIMARY KEY,
+    id SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     description VARCHAR(4096) NOT NULL,
     thumbnail VARCHAR(128) NOT NULL,
