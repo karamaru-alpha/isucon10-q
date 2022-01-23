@@ -8,8 +8,8 @@ DROP TABLE IF EXISTS isuumo.chair;
 
 CREATE TABLE isuumo.estate (
     id SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
-    name VARCHAR(64) NOT NULL,
-    description VARCHAR(4096) NOT NULL,
+    name VARCHAR(32) NOT NULL,
+    description VARCHAR(128) NOT NULL,
     thumbnail VARCHAR(128) NOT NULL,
     address VARCHAR(128) NOT NULL,
     latitude DOUBLE PRECISION NOT NULL,
