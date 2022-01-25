@@ -18,8 +18,8 @@ CREATE TABLE isuumo.estate (
     door_height INTEGER NOT NULL,
     door_width INTEGER NOT NULL,
     features VARCHAR(64) NOT NULL,
-    popularity INTEGER NOT NULL,
-    popularity_desc INTEGER AS (-popularity) INVISIBLE,
+    popularity MEDIUMINT NOT NULL,
+    popularity_desc MEDIUMINT AS (-popularity) INVISIBLE,
     INDEX (`rent`, `door_width`),
     INDEX (`rent`, `door_height`),
     INDEX (`popularity_desc`)
